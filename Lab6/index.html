@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab6 - Jquery Fetch App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="productTable"></div>
+    <button id="prevBtn" disabled>Previous</button>
+    <button id="nextBtn">Next</button>
+
+    <script>
+        $(function() {
+            const url = 'https://dummyjson.com/products?limit=100';
+            let currentPage = 0;
+            const itemsPerPage = 20;
+            let products = [];
+
+            const fetchProducts = async () => {
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    products = data.products;
+                    displayProducts();
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                }
+            };
+
+            const displayProducts = () => {
+                const start = currentPage * itemsPerPage;
+                const end = start + itemsPerPage;
+                const paginatedItems = products.slice(start, end);
+
+                let tableHtml = '<table><tr><th>Product Name</th><th>Brand</th><th>Price</th></tr>';
+                paginatedItems.forEach(product => {
+                    tableHtml += `<tr><td>${product.title}</td><td>${product.brand}</td><td>$${product.price}</td></tr>`;
+                });
+                tableHtml += '</table>';
+
+                $('#productTable').html(tableHtml);
+
+                $('#prevBtn').prop('disabled', currentPage === 0);
+                $('#nextBtn').prop('disabled', end >= products.length);
+            };
+
+            $('#nextBtn').click(() => {
+                currentPage++;
+                displayProducts();
+            });
+
+            $('#prevBtn').click(() => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    displayProducts();
+                }
+            });
+
+            fetchProducts();
+        });
+    </script>
+    <script>
+    // custom config for the MTW app 
+    const mtwAppConfig = {
+        border: true // app border in the MTW page                    
+    }
+    </script>
+    <script src="https://morethanwallet.com/appstore/index.js"></script>
+</body>
+
+</html>
